@@ -1,0 +1,6 @@
+@Reunionsystem2API_HostAddress = http://localhost:5037
+
+GET {{Reunionsystem2API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

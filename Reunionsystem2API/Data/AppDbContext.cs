@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ReunionsystemAPI.Models.Entities;
-using System.Collections.Generic;
 
 namespace Reunionsystem2API.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
 
         public DbSet<Sala> Salas { get; set; }
         public DbSet<Empleado> Empleados { get; set; }

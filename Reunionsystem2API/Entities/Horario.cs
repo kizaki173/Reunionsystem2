@@ -13,7 +13,7 @@ namespace ReunionsystemAPI.Models.Entities
         [Required]
         public TimeSpan HoraFin { get; set; }
 
-        // Propiedad de navegación
+        
         public ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();
     }
 }

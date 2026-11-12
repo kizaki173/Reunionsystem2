@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Reunionsystem2API.Data;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Reunionsystem2API.Domain.Entities;
+using Reunionsystem2API.Domain.Interfaces;
 using Reunionsystem2API.DTOs;
-using ReunionsystemAPI.Models.Entities;
 
 namespace Reunionsystem2API.Controllers
 {
@@ -10,121 +10,46 @@ namespace Reunionsystem2API.Controllers
     [ApiController]
     public class SalasController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IRepository<Sala> _salaRepository;
+        private readonly IMapper _mapper;
 
-        public SalasController(AppDbContext context)
+        public SalasController(IRepository<Sala> salaRepository, IMapper mapper)
         {
-            _context = context;
+            _salaRepository = salaRepository;
+            _mapper = mapper;
         }
 
-        // GET: api/Salas
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SalaResponseDto>>> GetSalas()
         {
-            var salas = await _context.Salas
-                .Select(s => new SalaResponseDto
-                {
-                    Id = s.Id,
-                    Nombre = s.Nombre,
-                    Capacidad = s.Capacidad,
-                })
-                .ToListAsync();
-
-            return Ok(salas);
+            var salas = await _salaRepository.GetAllAsync();
+            return Ok(_mapper.Map<IEnumerable<SalaResponseDto>>(salas));
         }
 
-        // GET: api/Salas/5
         [HttpGet("{id}")]
         public async Task<ActionResult<SalaResponseDto>> GetSala(int id)
         {
-            var sala = await _context.Salas.FindAsync(id);
+            var sala = await _salaRepository.GetByIdAsync(id);
 
             if (sala == null)
             {
                 return NotFound();
             }
 
-            var salaDto = new SalaResponseDto
-            {
-                Id = sala.Id,
-                Nombre = sala.Nombre,
-                Capacidad = sala.Capacidad,
-            };
-
-            return Ok(salaDto);
+            return _mapper.Map<SalaResponseDto>(sala);
         }
 
-        // POST: api/Salas
         [HttpPost]
-        public async Task<ActionResult<SalaResponseDto>> PostSala(SalaCreateDto salaDto)
+        public async Task<ActionResult<SalaResponseDto>> PostSala(SalaCreateDto salaCreateDto)
         {
-            var sala = new Sala
-            {
-                Nombre = salaDto.Nombre,
-                Capacidad = salaDto.Capacidad,
-                Ubicacion = salaDto.Ubicacion
-            };
+            var sala = _mapper.Map<Sala>(salaCreateDto);
 
-            _context.Salas.Add(sala);
-            await _context.SaveChangesAsync();
+            await _salaRepository.AddAsync(sala);
+            await _salaRepository.SaveChangesAsync();
 
-            var responseDto = new SalaResponseDto
-            {
-                Id = sala.Id,
-                Nombre = sala.Nombre,
-                Capacidad = sala.Capacidad,
-                Ubicacion = sala.Ubicacion
-            };
+            var salaResponse = _mapper.Map<SalaResponseDto>(sala);
 
-            return CreatedAtAction(nameof(GetSala), new { id = sala.Id }, responseDto);
-        }
-
-        // PUT: api/Salas/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutSala(int id, SalaCreateDto salaDto)
-        {
-            var sala = await _context.Salas.FindAsync(id);
-            if (sala == null)
-            {
-                return NotFound();
-            }
-
-            sala.Nombre = salaDto.Nombre;
-            sala.Capacidad = salaDto.Capacidad;
-            sala.Ubicacion = salaDto.Ubicacion;
-
-            _context.Entry(sala).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Salas.Any(e => e.Id == id))
-                {
-                    return NotFound();
-                }
-                throw;
-            }
-
-            return NoContent();
-        }
-
-        // DELETE: api/Salas/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSala(int id)
-        {
-            var sala = await _context.Salas.FindAsync(id);
-            if (sala == null)
-            {
-                return NotFound();
-            }
-
-            _context.Salas.Remove(sala);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetSala), new { id = sala.Id }, salaResponse);
         }
     }
 }

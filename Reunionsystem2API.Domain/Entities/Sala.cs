@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
-namespace ReunionsystemAPI.Models.Entities
+namespace Reunionsystem2API.Domain.Entities
 {
-    public class Empleado
+    public class Sala
     {
         [Key]
         public int Id { get; set; }
@@ -12,12 +13,11 @@ namespace ReunionsystemAPI.Models.Entities
         public string Nombre { get; set; } = string.Empty;
 
         [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        public int Capacidad { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string Departamento { get; set; } = string.Empty;
+        public string? Ubicacion { get; set; }
+
+        public bool Estado { get; set; } = true;
 
         // Propiedad de navegación
         public ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();

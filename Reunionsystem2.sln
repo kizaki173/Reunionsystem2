@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35913.81 d17.13
+VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reunionsystem2API", "Reunionsystem2API\Reunionsystem2API.csproj", "{5760C877-19C4-4B79-920E-448770B05360}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reunionsystem2API.Infrastructure", "Reunionsystem2API.Infrastructure\Reunionsystem2API.Infrastructure.csproj", "{8F407A7B-FBE5-447B-88DB-470D594CBFBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reunionsystem2API.Domain", "Reunionsystem2API.Domain\Reunionsystem2API.Domain.csproj", "{6FADF7E1-B509-4492-A7E3-B92C139657D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{5760C877-19C4-4B79-920E-448770B05360}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5760C877-19C4-4B79-920E-448770B05360}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5760C877-19C4-4B79-920E-448770B05360}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F407A7B-FBE5-447B-88DB-470D594CBFBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F407A7B-FBE5-447B-88DB-470D594CBFBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F407A7B-FBE5-447B-88DB-470D594CBFBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F407A7B-FBE5-447B-88DB-470D594CBFBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FADF7E1-B509-4492-A7E3-B92C139657D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FADF7E1-B509-4492-A7E3-B92C139657D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FADF7E1-B509-4492-A7E3-B92C139657D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FADF7E1-B509-4492-A7E3-B92C139657D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

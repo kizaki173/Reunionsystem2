@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ReunionsystemAPI.Models.Entities
+namespace Reunionsystem2API.Domain.Entities
 {
     public class Horario
     {

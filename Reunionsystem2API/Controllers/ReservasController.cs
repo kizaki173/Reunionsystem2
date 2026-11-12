@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Reunionsystem2API.Data;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Reunionsystem2API.Domain.Entities;
+using Reunionsystem2API.Domain.Interfaces;
 using Reunionsystem2API.DTOs;
-using ReunionsystemAPI.Models.Entities;
 
 namespace Reunionsystem2API.Controllers
 {
@@ -10,119 +10,46 @@ namespace Reunionsystem2API.Controllers
     [ApiController]
     public class ReservasController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IRepository<Reserva> _reservaRepository;
+        private readonly IMapper _mapper;
 
-        public ReservasController(AppDbContext context)
+        public ReservasController(IRepository<Reserva> reservaRepository, IMapper mapper)
         {
-            _context = context;
+            _reservaRepository = reservaRepository;
+            _mapper = mapper;
         }
 
-        // GET: api/Reservas
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ReservaResponseDto>>> GetReservas()
         {
-            return await _context.Reservas
-                .Include(r => r.Sala)
-                .Include(r => r.Empleado)
-                .Select(r => new ReservaResponseDto
-                {
-                    Id = r.Id,
-                    SalaId = r.SalaId,
-                    SalaNombre = r.Sala != null ? r.Sala.Nombre : string.Empty,
-                    EmpleadoId = r.EmpleadoId,
-                    EmpleadoNombre = r.Empleado != null ? r.Empleado.Nombre : string.Empty,
-                    HorarioId = r.HorarioId,
-                    Fecha = r.Fecha
-                })
-                .ToListAsync();
+            var reservas = await _reservaRepository.GetAllAsync();
+            return Ok(_mapper.Map<IEnumerable<ReservaResponseDto>>(reservas));
         }
 
-        // GET: api/Reservas/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ReservaResponseDto>> GetReserva(int id)
         {
-            var reserva = await _context.Reservas
-                .Include(r => r.Sala)
-                .Include(r => r.Empleado)
-                .FirstOrDefaultAsync(r => r.Id == id);
+            var reserva = await _reservaRepository.GetByIdAsync(id);
 
-            if (reserva == null) return NotFound();
-
-            return new ReservaResponseDto
+            if (reserva == null)
             {
-                Id = reserva.Id,
-                SalaId = reserva.SalaId,
-                SalaNombre = reserva.Sala?.Nombre ?? string.Empty,
-                EmpleadoId = reserva.EmpleadoId,
-                EmpleadoNombre = reserva.Empleado?.Nombre ?? string.Empty,
-                HorarioId = reserva.HorarioId,
-                Fecha = reserva.Fecha
-            };
+                return NotFound();
+            }
+
+            return _mapper.Map<ReservaResponseDto>(reserva);
         }
 
-        // POST: api/Reservas
         [HttpPost]
-        public async Task<ActionResult<ReservaResponseDto>> PostReserva(ReservaCreateDto dto)
+        public async Task<ActionResult<ReservaResponseDto>> PostReserva(ReservaCreateDto reservaCreateDto)
         {
-            var reserva = new Reserva
-            {
-                SalaId = dto.SalaId,
-                EmpleadoId = dto.EmpleadoId,
-                HorarioId = dto.HorarioId,
-                Fecha = dto.Fecha
-            };
+            var reserva = _mapper.Map<Reserva>(reservaCreateDto);
 
-            _context.Reservas.Add(reserva);
-            await _context.SaveChangesAsync();
+            await _reservaRepository.AddAsync(reserva);
+            await _reservaRepository.SaveChangesAsync();
 
-            var reservaCreada = await _context.Reservas
-                .Include(r => r.Sala)
-                .Include(r => r.Empleado)
-                .FirstAsync(r => r.Id == reserva.Id);
+            var reservaResponse = _mapper.Map<ReservaResponseDto>(reserva);
 
-            var responseDto = new ReservaResponseDto
-            {
-                Id = reservaCreada.Id,
-                SalaId = reservaCreada.SalaId,
-                SalaNombre = reservaCreada.Sala?.Nombre ?? string.Empty,
-                EmpleadoId = reservaCreada.EmpleadoId,
-                EmpleadoNombre = reservaCreada.Empleado?.Nombre ?? string.Empty,
-                HorarioId = reservaCreada.HorarioId,
-                Fecha = reservaCreada.Fecha
-            };
-
-            return CreatedAtAction(nameof(GetReserva), new { id = reserva.Id }, responseDto);
-        }
-
-        // PUT: api/Reservas/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutReserva(int id, ReservaCreateDto dto)
-        {
-            var reserva = await _context.Reservas.FindAsync(id);
-            if (reserva == null) return NotFound();
-
-            reserva.SalaId = dto.SalaId;
-            reserva.EmpleadoId = dto.EmpleadoId;
-            reserva.HorarioId = dto.HorarioId;
-            reserva.Fecha = dto.Fecha;
-
-            _context.Entry(reserva).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // DELETE: api/Reservas/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteReserva(int id)
-        {
-            var reserva = await _context.Reservas.FindAsync(id);
-            if (reserva == null) return NotFound();
-
-            _context.Reservas.Remove(reserva);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetReserva), new { id = reserva.Id }, reservaResponse);
         }
     }
 }

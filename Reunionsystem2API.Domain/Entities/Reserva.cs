@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Reunionsystem2API.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ReunionsystemAPI.Models.Entities
+namespace Reunionsystem2API.Domain.Entities
 {
     public class Reserva
     {

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Reunionsystem2API.Data;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Reunionsystem2API.Domain.Entities;
+using Reunionsystem2API.Domain.Interfaces;
 using Reunionsystem2API.DTOs;
-using ReunionsystemAPI.Models.Entities;
 
 namespace Reunionsystem2API.Controllers
 {
@@ -10,92 +10,46 @@ namespace Reunionsystem2API.Controllers
     [ApiController]
     public class EmpleadosController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IRepository<Empleado> _empleadoRepository;
+        private readonly IMapper _mapper;
 
-        public EmpleadosController(AppDbContext context)
+        public EmpleadosController(IRepository<Empleado> empleadoRepository, IMapper mapper)
         {
-            _context = context;
+            _empleadoRepository = empleadoRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EmpleadoResponseDto>>> GetEmpleados()
         {
-            return await _context.Empleados
-                .Select(e => new EmpleadoResponseDto
-                {
-                    Id = e.Id,
-                    Nombre = e.Nombre,
-                    Correo = e.Email, // Cambia e.Email por el nombre real de la propiedad en tu entidad si es diferente
-                    Departamento = e.Departamento
-                })
-                .ToListAsync();
+            var empleados = await _empleadoRepository.GetAllAsync();
+            return Ok(_mapper.Map<IEnumerable<EmpleadoResponseDto>>(empleados));
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<EmpleadoResponseDto>> GetEmpleado(int id)
         {
-            var empleado = await _context.Empleados.FindAsync(id);
-            if (empleado == null) return NotFound();
+            var empleado = await _empleadoRepository.GetByIdAsync(id);
 
-            return new EmpleadoResponseDto
+            if (empleado == null)
             {
-                Id = empleado.Id,
-                Nombre = empleado.Nombre,
-                Correo = empleado.Email,
-                Departamento = empleado.Departamento
-            };
+                return NotFound();
+            }
+
+            return _mapper.Map<EmpleadoResponseDto>(empleado);
         }
 
         [HttpPost]
-        public async Task<ActionResult<EmpleadoResponseDto>> PostEmpleado(EmpleadoCreateDto dto)
+        public async Task<ActionResult<EmpleadoResponseDto>> PostEmpleado(EmpleadoCreateDto empleadoCreateDto)
         {
-            var empleado = new Empleado
-            {
-                Nombre = dto.Nombre,
-                Email = dto.Correo, // Mapeo del DTO hacia la entidad
-                Departamento = dto.Departamento
-            };
+            var empleado = _mapper.Map<Empleado>(empleadoCreateDto);
 
-            _context.Empleados.Add(empleado);
-            await _context.SaveChangesAsync();
+            await _empleadoRepository.AddAsync(empleado);
+            await _empleadoRepository.SaveChangesAsync();
 
-            var responseDto = new EmpleadoResponseDto
-            {
-                Id = empleado.Id,
-                Nombre = empleado.Nombre,
-                Correo = empleado.Email,
-                Departamento = empleado.Departamento
-            };
+            var empleadoResponse = _mapper.Map<EmpleadoResponseDto>(empleado);
 
-            return CreatedAtAction(nameof(GetEmpleado), new { id = empleado.Id }, responseDto);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmpleado(int id, EmpleadoCreateDto dto)
-        {
-            var empleado = await _context.Empleados.FindAsync(id);
-            if (empleado == null) return NotFound();
-
-            empleado.Nombre = dto.Nombre;
-            empleado.Email = dto.Correo;
-            empleado.Departamento = dto.Departamento;
-
-            _context.Entry(empleado).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmpleado(int id)
-        {
-            var empleado = await _context.Empleados.FindAsync(id);
-            if (empleado == null) return NotFound();
-
-            _context.Empleados.Remove(empleado);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetEmpleado), new { id = empleado.Id }, empleadoResponse);
         }
     }
 }

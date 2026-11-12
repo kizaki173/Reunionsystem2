@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ReunionsystemAPI.Models.Entities;
+using Reunionsystem2API.Domain.Entities;
 
 namespace Reunionsystem2API.Data
 {

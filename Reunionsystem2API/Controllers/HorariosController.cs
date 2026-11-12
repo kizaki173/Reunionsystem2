@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Reunionsystem2API.Data;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Reunionsystem2API.Domain.Entities;
+using Reunionsystem2API.Domain.Interfaces;
 using Reunionsystem2API.DTOs;
-using ReunionsystemAPI.Models.Entities;
 
 namespace Reunionsystem2API.Controllers
 {
@@ -10,92 +10,46 @@ namespace Reunionsystem2API.Controllers
     [ApiController]
     public class HorariosController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IRepository<Horario> _horarioRepository;
+        private readonly IMapper _mapper;
 
-        public HorariosController(AppDbContext context)
+        public HorariosController(IRepository<Horario> horarioRepository, IMapper mapper)
         {
-            _context = context;
+            _horarioRepository = horarioRepository;
+            _mapper = mapper;
         }
 
-        // GET: api/Horarios
         [HttpGet]
         public async Task<ActionResult<IEnumerable<HorarioResponseDto>>> GetHorarios()
         {
-            return await _context.Horarios
-                .Select(h => new HorarioResponseDto
-                {
-                    Id = h.Id,
-                    HoraInicio = h.HoraInicio,
-                    HoraFin = h.HoraFin
-                })
-                .ToListAsync();
+            var horarios = await _horarioRepository.GetAllAsync();
+            return Ok(_mapper.Map<IEnumerable<HorarioResponseDto>>(horarios));
         }
 
-        // GET: api/Horarios/5
         [HttpGet("{id}")]
         public async Task<ActionResult<HorarioResponseDto>> GetHorario(int id)
         {
-            var horario = await _context.Horarios.FindAsync(id);
-            if (horario == null) return NotFound();
+            var horario = await _horarioRepository.GetByIdAsync(id);
 
-            return new HorarioResponseDto
+            if (horario == null)
             {
-                Id = horario.Id,
-                HoraInicio = horario.HoraInicio,
-                HoraFin = horario.HoraFin
-            };
+                return NotFound();
+            }
+
+            return _mapper.Map<HorarioResponseDto>(horario);
         }
 
-        // POST: api/Horarios
         [HttpPost]
-        public async Task<ActionResult<HorarioResponseDto>> PostHorario(HorarioCreateDto dto)
+        public async Task<ActionResult<HorarioResponseDto>> PostHorario(HorarioCreateDto horarioCreateDto)
         {
-            var horario = new Horario
-            {
-                HoraInicio = dto.HoraInicio,
-                HoraFin = dto.HoraFin
-            };
+            var horario = _mapper.Map<Horario>(horarioCreateDto);
 
-            _context.Horarios.Add(horario);
-            await _context.SaveChangesAsync();
+            await _horarioRepository.AddAsync(horario);
+            await _horarioRepository.SaveChangesAsync();
 
-            var responseDto = new HorarioResponseDto
-            {
-                Id = horario.Id,
-                HoraInicio = horario.HoraInicio,
-                HoraFin = horario.HoraFin
-            };
+            var horarioResponse = _mapper.Map<HorarioResponseDto>(horario);
 
-            return CreatedAtAction(nameof(GetHorario), new { id = horario.Id }, responseDto);
-        }
-
-        // PUT: api/Horarios/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutHorario(int id, HorarioCreateDto dto)
-        {
-            var horario = await _context.Horarios.FindAsync(id);
-            if (horario == null) return NotFound();
-
-            horario.HoraInicio = dto.HoraInicio;
-            horario.HoraFin = dto.HoraFin;
-
-            _context.Entry(horario).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        // DELETE: api/Horarios/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteHorario(int id)
-        {
-            var horario = await _context.Horarios.FindAsync(id);
-            if (horario == null) return NotFound();
-
-            _context.Horarios.Remove(horario);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return CreatedAtAction(nameof(GetHorario), new { id = horario.Id }, horarioResponse);
         }
     }
 }

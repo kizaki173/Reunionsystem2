@@ -9,6 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reunionsystem2API.Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reunionsystem2API.Domain", "Reunionsystem2API.Domain\Reunionsystem2API.Domain.csproj", "{6FADF7E1-B509-4492-A7E3-B92C139657D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reunionsystem2API.Application", "Reunionsystem2API.Application\Reunionsystem2API.Application.csproj", "{A74BD72C-38A2-41D7-9EA0-47D444F486D7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6FADF7E1-B509-4492-A7E3-B92C139657D8} = {6FADF7E1-B509-4492-A7E3-B92C139657D8}
+		{8F407A7B-FBE5-447B-88DB-470D594CBFBF} = {8F407A7B-FBE5-447B-88DB-470D594CBFBF}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +33,10 @@ Global
 		{6FADF7E1-B509-4492-A7E3-B92C139657D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FADF7E1-B509-4492-A7E3-B92C139657D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FADF7E1-B509-4492-A7E3-B92C139657D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A74BD72C-38A2-41D7-9EA0-47D444F486D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A74BD72C-38A2-41D7-9EA0-47D444F486D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A74BD72C-38A2-41D7-9EA0-47D444F486D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A74BD72C-38A2-41D7-9EA0-47D444F486D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

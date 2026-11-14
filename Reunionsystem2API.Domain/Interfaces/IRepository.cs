@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Linq.Expressions;
+using Reunionsystem2API.Domain.Entities;
 
 namespace Reunionsystem2API.Domain.Interfaces
 {
@@ -16,5 +17,13 @@ namespace Reunionsystem2API.Domain.Interfaces
         void Update(T entity);
         void Delete(T entity);
         Task<bool> SaveChangesAsync();
+    }
+    public interface IReservaRepository : IRepository<Reserva>
+    {
+        Task<IEnumerable<Reserva>> GetReservasConDetallesAsync();
+    }
+    public interface ISalaRepository : IRepository<Sala>
+    {
+        Task<Sala?> GetSalaByNombreAsync(string nombre);
     }
 }

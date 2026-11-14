@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Reunionsystem2API.Application\Reunionsystem2API.Application.csproj" />
     <ProjectReference Include="..\Reunionsystem2API.Domain\Reunionsystem2API.Domain.csproj" />
     <ProjectReference Include="..\Reunionsystem2API.Infrastructure\Reunionsystem2API.Infrastructure.csproj" />
   </ItemGroup>

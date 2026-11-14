@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reunionsystem2API.Domain.Entities;
 using Reunionsystem2API.Domain.Interfaces;
-using Reunionsystem2API.DTOs;
+using Reunionsystem2API.Application.DTOs;
 
 namespace Reunionsystem2API.Controllers
 {

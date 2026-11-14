@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Reunionsystem2API.Domain.Entities;
 using Reunionsystem2API.Domain.Interfaces;
-using Reunionsystem2API.DTOs;
+using Reunionsystem2API.Application.DTOs;
+using Reunionsystem2API.Application.Contract;
 
 namespace Reunionsystem2API.Controllers
 {
@@ -11,45 +12,41 @@ namespace Reunionsystem2API.Controllers
     public class EmpleadosController : ControllerBase
     {
         private readonly IRepository<Empleado> _empleadoRepository;
-        private readonly IMapper _mapper;
 
-        public EmpleadosController(IRepository<Empleado> empleadoRepository, IMapper mapper)
+        public EmpleadosController(IRepository<Empleado> empleadoRepository)
         {
             _empleadoRepository = empleadoRepository;
-            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmpleadoResponseDto>>> GetEmpleados()
+        public async Task<IActionResult> GetEmpleados()
         {
             var empleados = await _empleadoRepository.GetAllAsync();
-            return Ok(_mapper.Map<IEnumerable<EmpleadoResponseDto>>(empleados));
+            return Ok(empleados);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EmpleadoResponseDto>> GetEmpleado(int id)
+        public async Task<IActionResult> GetEmpleado(int id)
         {
             var empleado = await _empleadoRepository.GetByIdAsync(id);
-
-            if (empleado == null)
-            {
-                return NotFound();
-            }
-
-            return _mapper.Map<EmpleadoResponseDto>(empleado);
+            if (empleado == null) return NotFound();
+            return Ok(empleado);
         }
 
         [HttpPost]
-        public async Task<ActionResult<EmpleadoResponseDto>> PostEmpleado(EmpleadoCreateDto empleadoCreateDto)
+        public async Task<IActionResult> PostEmpleado([FromBody] EmpleadoCreateDto empleadoCreateDto)
         {
-            var empleado = _mapper.Map<Empleado>(empleadoCreateDto);
+            var empleado = new Empleado
+            {
+                Nombre = empleadoCreateDto.Nombre,
+                Email = empleadoCreateDto.Correo,
+                Departamento = empleadoCreateDto.Departamento
+            };
 
             await _empleadoRepository.AddAsync(empleado);
             await _empleadoRepository.SaveChangesAsync();
 
-            var empleadoResponse = _mapper.Map<EmpleadoResponseDto>(empleado);
-
-            return CreatedAtAction(nameof(GetEmpleado), new { id = empleado.Id }, empleadoResponse);
+            return CreatedAtAction(nameof(GetEmpleado), new { id = empleado.Id }, empleado);
         }
     }
 }

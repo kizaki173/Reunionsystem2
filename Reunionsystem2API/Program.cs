@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Reunionsystem2API.Application.Contract;
+using Reunionsystem2API.Application.Services;
 using Reunionsystem2API.Data;
 using Reunionsystem2API.Domain.Interfaces;
 using Reunionsystem2API.Infrastructure.Repositories;
@@ -12,6 +14,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<ISalaService, SalaService>();
+builder.Services.AddScoped<IReservaService, ReservaService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IReservaRepository, ReservaRepository>();
 builder.Services.AddScoped<ISalaRepository, SalaRepository>();

@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Reunionsystem2API.Domain.Entities;
 using Reunionsystem2API.Domain.Interfaces;
-using Reunionsystem2API.DTOs;
+using Reunionsystem2API.Application.DTOs;
+using Reunionsystem2API.Application.Contract;
 
 namespace Reunionsystem2API.Controllers
 {
@@ -10,46 +11,40 @@ namespace Reunionsystem2API.Controllers
     [ApiController]
     public class SalasController : ControllerBase
     {
-        private readonly IRepository<Sala> _salaRepository;
-        private readonly IMapper _mapper;
+        private readonly ISalaService _salaService;
 
-        public SalasController(IRepository<Sala> salaRepository, IMapper mapper)
+        public SalasController(ISalaService salaService)
         {
-            _salaRepository = salaRepository;
-            _mapper = mapper;
+            _salaService = salaService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SalaResponseDto>>> GetSalas()
+        public async Task<IActionResult> GetSalas()
         {
-            var salas = await _salaRepository.GetAllAsync();
-            return Ok(_mapper.Map<IEnumerable<SalaResponseDto>>(salas));
+            var salas = await _salaService.GetAllSalasAsync();
+            return Ok(salas);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<SalaResponseDto>> GetSala(int id)
+        public async Task<IActionResult> GetSala(int id)
         {
-            var sala = await _salaRepository.GetByIdAsync(id);
-
-            if (sala == null)
-            {
-                return NotFound();
-            }
-
-            return _mapper.Map<SalaResponseDto>(sala);
+            var sala = await _salaService.GetSalaByIdAsync(id);
+            if (sala == null) return NotFound();
+            return Ok(sala);
         }
 
         [HttpPost]
-        public async Task<ActionResult<SalaResponseDto>> PostSala(SalaCreateDto salaCreateDto)
+        public async Task<IActionResult> PostSala([FromBody] SalaCreateDto salaCreateDto)
         {
-            var sala = _mapper.Map<Sala>(salaCreateDto);
-
-            await _salaRepository.AddAsync(sala);
-            await _salaRepository.SaveChangesAsync();
-
-            var salaResponse = _mapper.Map<SalaResponseDto>(sala);
-
-            return CreatedAtAction(nameof(GetSala), new { id = sala.Id }, salaResponse);
+            try
+            {
+                var nuevaSala = await _salaService.CreateSalaAsync(salaCreateDto);
+                return CreatedAtAction(nameof(GetSala), new { id = nuevaSala.Id }, nuevaSala);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

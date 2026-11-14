@@ -1,4 +1,4 @@
-﻿namespace Reunionsystem2API.DTOs
+﻿namespace Reunionsystem2API.Application.DTOs
 {
     public class ReservaCreateDto
     {

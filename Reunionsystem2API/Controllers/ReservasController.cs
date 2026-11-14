@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Reunionsystem2API.Domain.Entities;
 using Reunionsystem2API.Domain.Interfaces;
-using Reunionsystem2API.DTOs;
+using Reunionsystem2API.Application.DTOs;
+using Reunionsystem2API.Application.Contract;
 
 namespace Reunionsystem2API.Controllers
 {
@@ -10,46 +11,40 @@ namespace Reunionsystem2API.Controllers
     [ApiController]
     public class ReservasController : ControllerBase
     {
-        private readonly IRepository<Reserva> _reservaRepository;
-        private readonly IMapper _mapper;
+        private readonly IReservaService _reservaService;
 
-        public ReservasController(IRepository<Reserva> reservaRepository, IMapper mapper)
+        public ReservasController(IReservaService reservaService)
         {
-            _reservaRepository = reservaRepository;
-            _mapper = mapper;
+            _reservaService = reservaService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReservaResponseDto>>> GetReservas()
+        public async Task<IActionResult> GetReservas()
         {
-            var reservas = await _reservaRepository.GetAllAsync();
-            return Ok(_mapper.Map<IEnumerable<ReservaResponseDto>>(reservas));
+            var reservas = await _reservaService.GetAllReservasAsync();
+            return Ok(reservas);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ReservaResponseDto>> GetReserva(int id)
+        public async Task<IActionResult> GetReserva(int id)
         {
-            var reserva = await _reservaRepository.GetByIdAsync(id);
-
-            if (reserva == null)
-            {
-                return NotFound();
-            }
-
-            return _mapper.Map<ReservaResponseDto>(reserva);
+            var reserva = await _reservaService.GetReservaByIdAsync(id);
+            if (reserva == null) return NotFound();
+            return Ok(reserva);
         }
 
         [HttpPost]
-        public async Task<ActionResult<ReservaResponseDto>> PostReserva(ReservaCreateDto reservaCreateDto)
+        public async Task<IActionResult> PostReserva([FromBody] ReservaCreateDto reservaCreateDto)
         {
-            var reserva = _mapper.Map<Reserva>(reservaCreateDto);
-
-            await _reservaRepository.AddAsync(reserva);
-            await _reservaRepository.SaveChangesAsync();
-
-            var reservaResponse = _mapper.Map<ReservaResponseDto>(reserva);
-
-            return CreatedAtAction(nameof(GetReserva), new { id = reserva.Id }, reservaResponse);
+            try
+            {
+                var nuevaReserva = await _reservaService.CreateReservaAsync(reservaCreateDto);
+                return CreatedAtAction(nameof(GetReserva), new { id = nuevaReserva.Id }, nuevaReserva);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
